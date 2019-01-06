@@ -2,14 +2,18 @@
 /**
 
 *Start the network using composer api !
-*Fabric has to be running 
+Pre-Reqs
+* 1. Fabric has to be running 
+* 2. Peer admin card and network admin card imported to the card storage on file system
 
  * 1. Create the Admin Connection instance
  * 2. Connect
  * 3. Create the Business Network Definition Object
  * 4. Install network to fabric dev env
  * 5. Start the network 
- * 6. Disconnect
+ * 6. connect network admin card
+ * 7. Ping the network 
+ * 8. Disconnect 
  */
 const AdminConnection = require('composer-admin').AdminConnection;
 const BusinessNetworkDefinition = require('composer-common').BusinessNetworkDefinition;
@@ -17,12 +21,15 @@ const BusinessNetworkDefinition = require('composer-common').BusinessNetworkDefi
 // Network details 
 
 const cardNameForPeerAdmin = "PeerAdmin@hlfv1";
-const appName = "NAME"; //<-- Put name of your network
-const bnaDirectory = "PATH"  //<-- Put path to your network folder
-const version = "0.0.4"  // <-- Put version of your network 
+const  cardNameForNetworkAdmin   = "admin@airlinev8";
+ const appName = "NAME"; //<-- Put name of your network
+ const bnaDirectory = "PATH"  //<-- Put path to your network folder
+ const version = "0.0.4"  // <-- Put version of your network 
+
+
 
 // 1. Create the AdminConnection instance
-// Composer 0.19.0 change
+
 var walletType = { type: 'composer-wallet-filesystem' }
 const adminConnection = new AdminConnection(walletType);
 
@@ -62,11 +69,20 @@ function upgradeApp(){
             
 
     }).then(()=>{
-
-        console.log('Network up and runing!!! ', bnaDef.getName(),'  ',bnaDef.getVersion());
-
-        // 5. Disconnect
+        console.log('Network up and runing!!! ', 'Network name: ', bnaDef.getName(),'  ', 'Network version: ', bnaDef.getVersion());
+         //6. connect network admin card 
+         adminConnection.connect(cardNameForNetworkAdmin).then(()=>{
+             // 7. Ping the network 
+            adminConnection.ping(appName).then(function(response){
+                console.log("Ping Response:");
+                console.log(response);
+            });
+         })
+         
+            
+        // 8. Disconnect
         adminConnection.disconnect();
+        
 
     }).catch(function(error){
         console.log(error);
